@@ -1,9 +1,9 @@
 from aiogram import F, Router, Bot
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from aiogram.filters import CommandStart, Command
 
 from lexicon.lexicon import LEXICON_RU
-from service.analyse_service import get_info
+from service.analyse_service import save_result_file
 
 router = Router()
 
@@ -26,6 +26,8 @@ async def help_message_handler(message: Message, bot: Bot):
 
     await bot.download(message.document.file_id, local_path)
     
-    get_info(local_path, message.document.file_id)
+    file_path = save_result_file(local_path, message.document.file_id)
     
-    await message.answer(text="Your doc is proccessing...")
+    file = FSInputFile(file_path, filename="result.xlsx")
+
+    await message.answer_document(document=file)
