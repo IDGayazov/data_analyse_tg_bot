@@ -1,16 +1,99 @@
+import logging
 import pandas as pd
 
-def _count_of_table():
-    pass
 
-def _count_of_missing_value():
-    pass
+logger = logging.getLogger(__name__)
 
-def _count_of_outliers():
-    pass
+# пропущенные значения
+def _count_of_missing_value(data: pd.DataFrame) -> pd.Series:
+    return data.isna().sum()
 
-def _stat_info():
-    pass
 
-def get_info():
-    pass
+# Функция для нахождения выбросов по IQR для каждого столбца
+def _find_outliers_iqr(df: pd.DataFrame, columns: list[int]) -> pd.DataFrame:
+    outliers = pd.DataFrame()  # DataFrame для хранения выбросов
+    for col in columns:
+        # Вычисляем Q1, Q3 и IQR
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        
+        # Вычисляем границы для выбросов
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        
+        # Фильтруем выбросы: значения меньше нижней границы или больше верхней
+        outliers_col = df[(df[col] < lower_bound) | (df[col] > upper_bound)]
+        outliers_col['Столбец'] = col  # Добавляем название столбца для классификации
+        outliers = pd.concat([outliers, outliers_col])  # Добавляем выбросы для текущего столбца
+        
+    return outliers
+
+
+# выбросы 
+def _count_of_outliers(data: pd.DataFrame) -> pd.DataFrame:
+    numeric_columns = data.select_dtypes(include=['number']).columns
+    return _find_outliers_iqr(data, numeric_columns)
+
+
+# статистическая информация
+def _stat_info(data: pd.DataFrame) -> pd.DataFrame:
+    numeric_columns = data.select_dtypes(include=['number']).columns
+
+    # среднее
+    mean_data = data[numeric_columns].mean().dropna()
+    mean_df = mean_data.reset_index()
+    mean_df.columns = ['Столбец', 'Среднее']
+
+    # медиана
+    median_data = data[numeric_columns].median().dropna()
+    median_df = median_data.reset_index()
+    median_df.columns = ['Столбец', 'Медиана']
+
+    # минимальное значение
+    min_data = data[numeric_columns].min().dropna()
+    min_df = min_data.reset_index()
+    min_df.columns = ['Столбец', 'Минимум']
+
+    # максимальное значение
+    max_data = data[numeric_columns].max().dropna()
+    max_df = max_data.reset_index()
+    max_df.columns = ['Столбец', 'Максимум']
+
+    res_df = mean_df.merge(median_df, how='inner', on='Столбец')
+    res_df = res_df.merge(max_df, how='inner', on='Столбец')
+    res_df = res_df.merge(min_df, how='inner', on='Столбец')
+
+    return res_df
+
+
+def _write_df(writer: pd.ExcelWriter, df: pd.DataFrame, sheetname: str, header: str = 'Информация по данным'):
+    df.to_excel(writer, sheet_name=sheetname, header=False, index=True, startrow=3, startcol=0)
+
+    wb = writer.book
+    worksheet = wb[sheetname]
+
+    worksheet['A2'] = header
+
+    for col in worksheet.columns:
+        worksheet.column_dimensions[col[0].column_letter].auto_size = True
+
+
+def get_info(path: str, file_id: str):
+    logger.info(f'Proccessing file: {path}')
+
+    data = pd.read_excel(path, engine='openpyxl')
+
+    missing_value_df = _count_of_missing_value(data)
+    stat_df = _stat_info(data)
+    outliers_df = _count_of_outliers(data)
+
+    file_path = './files_out/result' + file_id + '.xlsx'
+
+    writer = pd.ExcelWriter(file_path, engine='openpyxl')
+
+    _write_df(writer, missing_value_df, 'missing_value', 'Таблица пропущенных значений')
+    _write_df(writer, stat_df, 'stat', 'Статистика по данным')
+    _write_df(writer, outliers_df, 'outliers', 'Статистика по выбросам вычисленным с помощью IQR')
+
+    writer.close()
