@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 
+from service.package_service import get_out_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ def _write_df(writer: pd.ExcelWriter, df: pd.DataFrame, sheetname: str, header: 
         worksheet.column_dimensions[col[0].column_letter].auto_size = True
 
 
-def save_result_file(path: str, file_id: str):
+def save_result_file(path: str, file_id: str) -> str:
     logger.info(f'Proccessing file: {path}')
 
     data = pd.read_excel(path, engine='openpyxl')
@@ -98,7 +99,7 @@ def save_result_file(path: str, file_id: str):
     stat_df = _stat_info(data)
     outliers_df = _count_of_outliers(data)
 
-    file_path = './files_out/result_' + file_id + '.xlsx'
+    file_path = get_out_file_path(file_id)
 
     writer = pd.ExcelWriter(file_path, engine='openpyxl')
 
