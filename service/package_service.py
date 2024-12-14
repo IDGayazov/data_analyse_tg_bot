@@ -3,8 +3,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-in_dir_name = './files_in'
-out_dir_name = './files_out'
+in_dir_name = 'files_in'
+out_dir_name = 'files_out'
 
 in_file_prefix = "file_"
 out_file_prefix = 'result_'
@@ -13,14 +13,15 @@ def get_in_file_path(file_id: str) -> str:
     if not os.path.exists(in_dir_name):
         os.mkdir(in_dir_name)
     
-    return in_dir_name + '/' + in_file_prefix + file_id + '.xslx'
+    return os.path.join('.', in_dir_name, in_file_prefix + file_id + '.xlsx')
+    # return in_dir_name + '/' + in_file_prefix + file_id + '.xslx'
 
 
 def get_out_file_path(file_id: str) -> str:
     if not os.path.exists(out_dir_name):
         os.mkdir(out_dir_name)
 
-    return out_dir_name + '/' + out_file_prefix + file_id + '.xlsx'
+    return os.path.join('.', out_dir_name, out_file_prefix + file_id + '.xlsx')
     
 
 def delete_files():

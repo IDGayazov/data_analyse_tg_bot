@@ -49,37 +49,15 @@ def _count_of_outliers(data: pd.DataFrame) -> pd.DataFrame:
 
 # статистическая информация
 def _stat_info(data: pd.DataFrame) -> pd.DataFrame:
-    numeric_columns = data.select_dtypes(include=['number']).columns
+    return data.describe()
 
-    # среднее
-    mean_data = data[numeric_columns].mean().dropna()
-    mean_df = mean_data.reset_index()
-    mean_df.columns = ['Столбец', 'Среднее']
-
-    # медиана
-    median_data = data[numeric_columns].median().dropna()
-    median_df = median_data.reset_index()
-    median_df.columns = ['Столбец', 'Медиана']
-
-    # минимальное значение
-    min_data = data[numeric_columns].min().dropna()
-    min_df = min_data.reset_index()
-    min_df.columns = ['Столбец', 'Минимум']
-
-    # максимальное значение
-    max_data = data[numeric_columns].max().dropna()
-    max_df = max_data.reset_index()
-    max_df.columns = ['Столбец', 'Максимум']
-
-    res_df = mean_df.merge(median_df, how='inner', on='Столбец')
-    res_df = res_df.merge(max_df, how='inner', on='Столбец')
-    res_df = res_df.merge(min_df, how='inner', on='Столбец')
-
-    return res_df
+# матрица корреляции
+def _corr_info(data: pd.DataFrame):
+    return data.corr()
 
 
 def _write_df(writer: pd.ExcelWriter, df: pd.DataFrame, sheetname: str, header: str = 'Информация по данным'):
-    df.to_excel(writer, sheet_name=sheetname, header=False, index=False, startrow=3, startcol=0)
+    df.to_excel(writer, sheet_name=sheetname, header=True, index=True, startrow=3, startcol=0)
 
     wb = writer.book
     worksheet = wb[sheetname]
@@ -98,6 +76,7 @@ def save_result_file(path: str, file_id: str) -> str:
     missing_value_df = _count_of_missing_value(data)
     stat_df = _stat_info(data)
     outliers_df = _count_of_outliers(data)
+    corr_df = _corr_info(data)
 
     file_path = get_out_file_path(file_id)
 
@@ -106,6 +85,7 @@ def save_result_file(path: str, file_id: str) -> str:
     _write_df(writer, missing_value_df, 'missing_value', 'Таблица пропущенных значений')
     _write_df(writer, stat_df, 'stat', 'Статистика по данным')
     _write_df(writer, outliers_df, 'outliers', 'Статистика по выбросам вычисленным с помощью IQR')
+    _write_df(writer, corr_df, 'corr', 'Коэффициенты корреляции')
 
     writer.close()
 
