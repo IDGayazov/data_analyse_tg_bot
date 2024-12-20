@@ -53,6 +53,8 @@ def _stat_info(data: pd.DataFrame) -> pd.DataFrame:
 
 # матрица корреляции
 def _corr_info(data: pd.DataFrame):
+    numeric_columns = numeric_columns = data.select_dtypes(include=['number']).columns
+    data = data[numeric_columns]
     return data.corr()
 
 
