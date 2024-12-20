@@ -14,8 +14,6 @@ def get_in_file_path(file_id: str) -> str:
         os.mkdir(in_dir_name)
     
     return os.path.join('.', in_dir_name, in_file_prefix + file_id + '.xlsx')
-    # return in_dir_name + '/' + in_file_prefix + file_id + '.xslx'
-
 
 def get_out_file_path(file_id: str) -> str:
     if not os.path.exists(out_dir_name):
