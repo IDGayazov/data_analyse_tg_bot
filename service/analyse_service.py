@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 def _count_of_missing_value(data: pd.DataFrame) -> pd.Series:
     return data.isna().sum()
 
+
 def find_outliers_iqr_dict(df, columns) -> dict[str, list[int]]:
     outliers_dict = {}  # Словарь для хранения выбросов по каждому столбцу
     for col in columns:
@@ -51,6 +52,7 @@ def _count_of_outliers(data: pd.DataFrame) -> pd.DataFrame:
 def _stat_info(data: pd.DataFrame) -> pd.DataFrame:
     return data.describe()
 
+
 # матрица корреляции
 def _corr_info(data: pd.DataFrame):
     numeric_columns = numeric_columns = data.select_dtypes(include=['number']).columns
@@ -76,8 +78,6 @@ def missing_values_file_save(column: str, file_id: str, path: str):
     data = pd.read_excel(path, engine='openpyxl')
     missing_value_df = _count_of_missing_value(data[[column]])
 
-    _, _, file_id = path.split('_')
-
     file_path = get_out_file_path(file_id)
 
     writer = pd.ExcelWriter(file_path, engine='openpyxl')
@@ -86,6 +86,7 @@ def missing_values_file_save(column: str, file_id: str, path: str):
     writer.close()
 
     return file_path
+
 
 def get_stat_file_save(column: str, file_id: str, path: str):
     logger.info(f'Proccessing file: {path}')
@@ -101,6 +102,7 @@ def get_stat_file_save(column: str, file_id: str, path: str):
     writer.close()
 
     return file_path
+
 
 def get_outliers_file_save(column: str, file_id: str, path: str):
     logger.info(f'Proccessing file: {path}')
