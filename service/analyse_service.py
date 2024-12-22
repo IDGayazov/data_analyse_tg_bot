@@ -70,6 +70,55 @@ def _write_df(writer: pd.ExcelWriter, df: pd.DataFrame, sheetname: str, header: 
         worksheet.column_dimensions[col[0].column_letter].auto_size = True
 
 
+def missing_values_file_save(column: str, file_id: str, path: str):
+    logger.info(f'Proccessing file: {path}')
+
+    data = pd.read_excel(path, engine='openpyxl')
+    missing_value_df = _count_of_missing_value(data[[column]])
+
+    _, _, file_id = path.split('_')
+
+    file_path = get_out_file_path(file_id)
+
+    writer = pd.ExcelWriter(file_path, engine='openpyxl')
+    file_path = get_out_file_path(file_id)
+    _write_df(writer, missing_value_df, 'missing_value', 'Таблица пропущенных значений')
+    writer.close()
+
+    return file_path
+
+def get_stat_file_save(column: str, file_id: str, path: str):
+    logger.info(f'Proccessing file: {path}')
+
+    data = pd.read_excel(path, engine='openpyxl')
+    stat_df = _stat_info(data[[column]])
+
+    file_path = get_out_file_path(file_id)
+
+    writer = pd.ExcelWriter(file_path, engine='openpyxl')
+    file_path = get_out_file_path(file_id)
+    _write_df(writer, stat_df, 'get_stat', 'Статистика по столбцу')
+    writer.close()
+
+    return file_path
+
+def get_outliers_file_save(column: str, file_id: str, path: str):
+    logger.info(f'Proccessing file: {path}')
+
+    data = pd.read_excel(path, engine='openpyxl')
+    outliers_df = _count_of_outliers(data[[column]])
+
+    file_path = get_out_file_path(file_id)
+
+    writer = pd.ExcelWriter(file_path, engine='openpyxl')
+    file_path = get_out_file_path(file_id)
+    _write_df(writer, outliers_df, 'outliers', 'Статистика по выбросам')
+    writer.close()
+
+    return file_path
+
+
+
 def save_result_file(path: str, file_id: str) -> str:
     logger.info(f'Proccessing file: {path}')
 
@@ -92,3 +141,9 @@ def save_result_file(path: str, file_id: str) -> str:
     writer.close()
 
     return file_path
+
+
+def get_columns(path: str):
+    logger.info(f'Proccessing file: {path}')
+    data = pd.read_excel(path, engine='openpyxl')
+    return data.columns
