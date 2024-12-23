@@ -104,6 +104,21 @@ def get_stat_file_save(column: str, file_id: str, path: str):
     return file_path
 
 
+def get_values_file_save(column: str, file_id: str, path: str):
+    logger.info(f'Proccessing file: {path}')
+
+    data = pd.read_excel(path, engine='openpyxl')
+    values_df = data[[column]].value_counts()
+
+    file_path = get_out_file_path(file_id)
+
+    writer = pd.ExcelWriter(file_path, engine='openpyxl')
+    file_path = get_out_file_path(file_id)
+    _write_df(writer, values_df, 'values', 'Распределение значений')
+    writer.close()
+
+    return file_path
+
 def get_outliers_file_save(column: str, file_id: str, path: str):
     logger.info(f'Proccessing file: {path}')
 

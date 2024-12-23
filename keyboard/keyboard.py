@@ -31,6 +31,10 @@ def create_keyboard():
             text=LEXICON_RU['get_outliers'],
             callback_data='get_outliers'
         ),
+        InlineKeyboardButton(
+            text=LEXICON_RU['get_values'],
+            callback_data='get_values'
+        ),
         width=1)
     # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()

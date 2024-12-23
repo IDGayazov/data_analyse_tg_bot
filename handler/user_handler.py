@@ -8,7 +8,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from lexicon.lexicon import LEXICON_RU
 from filter.user_state import FSMBotState
 from filter.file_filter import XlsxFileFilter
-from service.analyse_service import save_result_file, get_columns, missing_values_file_save, get_stat_file_save, get_outliers_file_save
+from service.analyse_service import save_result_file, get_columns, missing_values_file_save, get_stat_file_save, get_outliers_file_save, get_values_file_save
 from service.package_service import get_in_file_path, delete_files
 from keyboard.keyboard import create_pagination_keyboard, create_keyboard
 from database.database import user_dict_template, users_db
@@ -138,6 +138,21 @@ async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContex
 async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContext):
     column = users_db[callback_query.from_user.id]['columns'][users_db[callback_query.from_user.id]['current_column']]
     out_file_path = get_outliers_file_save(column, 
+                                       users_db[callback_query.from_user.id]['file_id'], 
+                                       users_db[callback_query.from_user.id]['path'])
+
+    file = FSInputFile(out_file_path, filename="result.xlsx")
+    await callback_query.message.answer_document(document=file)
+    await state.set_state(default_state)
+    delete_files()
+
+    await callback_query.answer()
+
+
+@router.callback_query(F.data == 'get_values', StateFilter(FSMBotState.handle_partan_state))
+async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContext):
+    column = users_db[callback_query.from_user.id]['columns'][users_db[callback_query.from_user.id]['current_column']]
+    out_file_path = get_values_file_save(column, 
                                        users_db[callback_query.from_user.id]['file_id'], 
                                        users_db[callback_query.from_user.id]['path'])
 
