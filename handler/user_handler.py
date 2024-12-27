@@ -38,7 +38,12 @@ async def fullan_message_handler(message: Message, state: FSMContext):
 async def file_message_handler(message: Message, bot: Bot, state: FSMContext):
     in_file_path = get_in_file_path(message.document.file_id)
     await bot.download(message.document.file_id, in_file_path)
-    out_file_path = save_result_file(in_file_path, message.document.file_id)
+
+    try:
+        out_file_path = save_result_file(in_file_path, message.document.file_id)
+    except ValueError:
+        await message.answer(LEXICON_RU['cannot_parse'])
+        return
 
     file = FSInputFile(out_file_path, filename="result.xlsx")
     await message.answer_document(document=file)
@@ -107,9 +112,14 @@ async def process_forward_press(callback: CallbackQuery):
 async def process_miss_value_press(callback_query: CallbackQuery, state: FSMContext):
 
     column = users_db[callback_query.from_user.id]['columns'][users_db[callback_query.from_user.id]['current_column']]
-    out_file_path = missing_values_file_save(column, 
+    
+    try:
+        out_file_path = missing_values_file_save(column, 
                                              users_db[callback_query.from_user.id]['file_id'],
                                              users_db[callback_query.from_user.id]['path'])
+    except ValueError:
+        await callback_query.message.answer(LEXICON_RU['cannot_parse'])
+        return
 
     file = FSInputFile(out_file_path, filename="result.xlsx")
     await callback_query.message.answer_document(document=file)
@@ -122,9 +132,13 @@ async def process_miss_value_press(callback_query: CallbackQuery, state: FSMCont
 @router.callback_query(F.data == 'get_stat', StateFilter(FSMBotState.handle_partan_state))
 async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContext):
     column = users_db[callback_query.from_user.id]['columns'][users_db[callback_query.from_user.id]['current_column']]
-    out_file_path = get_stat_file_save(column, 
+    try:
+        out_file_path = get_stat_file_save(column, 
                                        users_db[callback_query.from_user.id]['file_id'], 
                                        users_db[callback_query.from_user.id]['path'])
+    except ValueError:
+        await callback_query.message.answer(LEXICON_RU['cannot_parse'])
+        return
 
     file = FSInputFile(out_file_path, filename="result.xlsx")
     await callback_query.message.answer_document(document=file)
@@ -137,9 +151,14 @@ async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContex
 @router.callback_query(F.data == 'get_outliers', StateFilter(FSMBotState.handle_partan_state))
 async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContext):
     column = users_db[callback_query.from_user.id]['columns'][users_db[callback_query.from_user.id]['current_column']]
-    out_file_path = get_outliers_file_save(column, 
+    
+    try:
+        out_file_path = get_outliers_file_save(column, 
                                        users_db[callback_query.from_user.id]['file_id'], 
                                        users_db[callback_query.from_user.id]['path'])
+    except ValueError:
+        await callback_query.message.answer(LEXICON_RU['cannot_parse'])
+        return
 
     file = FSInputFile(out_file_path, filename="result.xlsx")
     await callback_query.message.answer_document(document=file)
@@ -152,9 +171,14 @@ async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContex
 @router.callback_query(F.data == 'get_values', StateFilter(FSMBotState.handle_partan_state))
 async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContext):
     column = users_db[callback_query.from_user.id]['columns'][users_db[callback_query.from_user.id]['current_column']]
-    out_file_path = get_values_file_save(column, 
+    
+    try:
+        out_file_path = get_values_file_save(column, 
                                        users_db[callback_query.from_user.id]['file_id'], 
                                        users_db[callback_query.from_user.id]['path'])
+    except ValueError:
+        await callback_query.message.answer(LEXICON_RU['cannot_parse'])
+        return
 
     file = FSInputFile(out_file_path, filename="result.xlsx")
     await callback_query.message.answer_document(document=file)

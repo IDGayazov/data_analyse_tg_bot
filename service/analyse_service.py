@@ -76,6 +76,7 @@ def missing_values_file_save(column: str, file_id: str, path: str):
     logger.info(f'Proccessing file: {path}')
 
     data = pd.read_excel(path, engine='openpyxl')
+
     missing_value_df = _count_of_missing_value(data[[column]])
 
     file_path = get_out_file_path(file_id)
@@ -133,7 +134,6 @@ def get_outliers_file_save(column: str, file_id: str, path: str):
     writer.close()
 
     return file_path
-
 
 
 def save_result_file(path: str, file_id: str) -> str:

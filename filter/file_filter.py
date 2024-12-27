@@ -6,7 +6,7 @@ from lexicon.lexicon import LEXICON_RU
 class XlsxFileFilter(BaseFilter):
     
     async def __call__(self, message: Message) -> bool:
-        _, extension = message.document.file_name.split(".")
+        extension = message.document.file_name.split(".")[-1]
 
         if extension != 'xlsx':
             return False
