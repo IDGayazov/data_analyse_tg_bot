@@ -11,21 +11,18 @@ def _count_of_missing_value(data: pd.DataFrame) -> pd.Series:
 
 
 def find_outliers_iqr_dict(df, columns) -> dict[str, list[int]]:
-    outliers_dict = {}  # Словарь для хранения выбросов по каждому столбцу
+    outliers_dict = {}  
     for col in columns:
-        # Вычисляем Q1, Q3 и IQR
+        
         Q1 = df[col].quantile(0.25)
         Q3 = df[col].quantile(0.75)
         IQR = Q3 - Q1
         
-        # Вычисляем границы для выбросов
         lower_bound = Q1 - 1.5 * IQR
         upper_bound = Q3 + 1.5 * IQR
         
-        # Фильтруем выбросы: значения меньше нижней границы или больше верхней
         outliers = df[(df[col] < lower_bound) | (df[col] > upper_bound)][col].tolist()
         
-        # Добавляем в словарь, если есть выбросы
         if outliers:
             outliers_dict[col] = outliers
             
