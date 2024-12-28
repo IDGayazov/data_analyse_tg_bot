@@ -41,7 +41,7 @@ async def file_message_handler(message: Message, bot: Bot, state: FSMContext):
 
     try:
         out_file_path = save_result_file(in_file_path, message.document.file_id)
-    except ValueError:
+    except Exception:
         await message.answer(LEXICON_RU['cannot_parse'])
         return
 
@@ -117,7 +117,7 @@ async def process_miss_value_press(callback_query: CallbackQuery, state: FSMCont
         out_file_path = missing_values_file_save(column, 
                                              users_db[callback_query.from_user.id]['file_id'],
                                              users_db[callback_query.from_user.id]['path'])
-    except ValueError:
+    except Exception:
         await callback_query.message.answer(LEXICON_RU['cannot_parse'])
         return
 
@@ -136,7 +136,7 @@ async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContex
         out_file_path = get_stat_file_save(column, 
                                        users_db[callback_query.from_user.id]['file_id'], 
                                        users_db[callback_query.from_user.id]['path'])
-    except ValueError:
+    except Exception:
         await callback_query.message.answer(LEXICON_RU['cannot_parse'])
         return
 
@@ -156,7 +156,7 @@ async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContex
         out_file_path = get_outliers_file_save(column, 
                                        users_db[callback_query.from_user.id]['file_id'], 
                                        users_db[callback_query.from_user.id]['path'])
-    except ValueError:
+    except Exception:
         await callback_query.message.answer(LEXICON_RU['cannot_parse'])
         return
 
@@ -176,7 +176,7 @@ async def process_get_stat_press(callback_query: CallbackQuery, state: FSMContex
         out_file_path = get_values_file_save(column, 
                                        users_db[callback_query.from_user.id]['file_id'], 
                                        users_db[callback_query.from_user.id]['path'])
-    except ValueError:
+    except Exception:
         await callback_query.message.answer(LEXICON_RU['cannot_parse'])
         return
 
